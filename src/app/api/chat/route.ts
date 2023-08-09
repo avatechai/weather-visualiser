@@ -94,10 +94,6 @@ export async function POST(req: Request) {
         //   image = images[0].uri
         // }
 
-        // console.log(image, status)
-
-        // console.log(currentWeather.daily[0].summary, currentLocation[0].lat)
-
         // Call a weather API here
         const weatherData = {
           temperature: currentWeather.current.temp,
@@ -105,10 +101,6 @@ export async function POST(req: Request) {
           currentWeather: currentWeather.current.weather[0].description,
           unit: args.format === 'celsius' ? 'C' : 'F',
         }
-
-        // const imageData = {
-        //   image: image,
-        // }
 
         // `createFunctionCallMessages` constructs the relevant "assistant" and "function" messages for you
         const newMessages = createFunctionCallMessages(weatherData)
@@ -118,6 +110,7 @@ export async function POST(req: Request) {
           stream: true,
           model: 'gpt-3.5-turbo-0613',
           // see "Recursive Function Calls" below
+          functions,
         })
       }
     },

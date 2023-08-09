@@ -11,6 +11,10 @@
   "dependencies": {
     "@avatechai/avatars": "0.4.19",
     "@leap-ai/sdk": "^0.0.130",
+    "@nextui-org/button": "^2.0.5",
+    "@nextui-org/react": "^2.0.8",
+    "@nextui-org/system": "^2.0.3",
+    "@nextui-org/theme": "^2.0.4",
     "@types/node": "20.4.4",
     "@types/react": "18.2.15",
     "@types/react-dom": "18.2.7",
@@ -29,5 +33,8 @@
     "reveal.js": "^4.5.0",
     "tailwindcss": "3.3.3",
     "typescript": "5.1.6"
+  },
+  "devDependencies": {
+    "daisyui": "^3.5.1"
   }
 }

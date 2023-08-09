@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+.noscrollbar {
+  flex: auto;
+}
+
+.noscrollbar::-webkit-scrollbar {
+  display: none;
+}
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

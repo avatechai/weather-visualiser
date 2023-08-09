@@ -11,6 +11,7 @@ import { buildCharacterPersonaPrompt } from '@avatechai/avatars'
 
 import { useEffect, useState } from 'react'
 import { getGeneratedImage, imageGenerator } from './imageGenerator'
+import { Button, Card, CardBody } from '@nextui-org/react'
 
 const elevenLabs = new ElevenLabsVoiceService(
   process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY!,
@@ -87,7 +88,6 @@ export default function Chat() {
         generateId
       )
       status = initialStatus
-
       while (status != 'finished') {
         await new Promise((resolve) => setTimeout(resolve, 1000))
         const { images, status: currentStatus } = await getGeneratedImage(
@@ -104,46 +104,61 @@ export default function Chat() {
 
   return (
     <>
-      <img src={image} alt='' className='absolute w-screen h-screen'></img>
+      {image && (
+        <img src={image} alt='' className='absolute w-screen h-screen'></img>
+      )}
       <div className='p-10 flex flex-col absolute bottom-0 right-0'>
         {/* Avatar Display */}
         {/* <div>
           Audio Status:
           <span className='bg-gray-200 rounded-lg px-2'>{audioStatus}</span>
         </div> */}
-        <div className='flex h-full w-full border-4 justify-center rounded-full overflow-hidden'>{avatarDisplay}</div>
-
-        {/* Message Display */}
+        <div className='flex h-full w-full !border-4 ring ring-white justify-center rounded-full glass overflow-hidden'>
+          {avatarDisplay}
+        </div>
       </div>
-      
-        {messages.map(
-          (m) =>
-            m.role != 'system' && (
-              <div key={m.id}>
-                {m.role === 'user' ? 'User: ' : 'AI: '}
-                {m.content}
-              </div>
-            )
-        )}
-
-      {/* Input */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          handleSubmit(e)
-          handleFirstInteractionAudio()
-        }}
-        className='px-2 max-w-md fixed bottom-0 flex items-center gap-2 justify-center mb-8 w-full'
-      >
-        <input
-          placeholder='Say something...'
-          className='max-w-md border border-gray-300 rounded shadow-xl p-2 w-full'
-          value={input}
-          onChange={handleInputChange}
-        />
-
-        <button type='submit'>Send</button>
-      </form>
+      <div className='flex w-[34rem] h-screen items-end py-20'>
+        <div className='flex h-72 glass p-6 w-full justify-center rounded-2xl'>
+          <div className={'flex flex-col w-full px-6 py-2 overflow-y-scroll noscrollbar h-full gap-2'}>
+            {messages.map(
+              (m) =>
+                m.role != 'system' && (
+                  <Card
+                    key={m.id}
+                    className={
+                      'flex bg-background/60 h-fit min-h-12 ' +
+                      (m.role === 'user' ? 'self-end' : 'self-start')
+                    }
+                  >
+                    <CardBody className='h-full'>
+                      {m.role === 'user' ? 'User: ' : 'AI: '}
+                      {m.content}
+                    </CardBody>
+                  </Card>
+                )
+            ).reverse()}
+          </div>
+          {/* Input */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleSubmit(e)
+              handleFirstInteractionAudio()
+            }}
+            className='px-2 max-w-md fixed bottom-0 flex items-center gap-2 justify-center mb-8 w-full'
+          >
+            <input
+              placeholder='Say something...'
+              className='max-w-md border border-gray-300 rounded-full shadow-xl p-3 w-full'
+              value={input}
+              onChange={handleInputChange}
+            />
+            <Button variant='ghost' type='submit'>
+              Send
+            </Button>
+          </form>
+        </div>
+      </div>
     </>
   )
 }
