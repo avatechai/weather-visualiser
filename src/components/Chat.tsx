@@ -44,7 +44,7 @@ export default function Chat() {
     text: message,
     currentEmotion: currentEmotion,
     avatarId: '89479c95-4ec5-42f7-ac0f-03f8340e8bda',
-
+    toggleMouseInteract: false,
     // Loader + Plugins
     avatarLoaders: defaultAvatarLoaders,
     blendshapesService: defaultBlendshapesService_2,
@@ -105,15 +105,17 @@ export default function Chat() {
   return (
     <>
       <img src={image} alt='' className='absolute w-screen h-screen'></img>
-      <div className='w-full md:max-w-md py-24 flex flex-col stretch relative'>
+      <div className='p-10 flex flex-col absolute bottom-0 right-0'>
         {/* Avatar Display */}
-        <div>
+        {/* <div>
           Audio Status:
           <span className='bg-gray-200 rounded-lg px-2'>{audioStatus}</span>
-        </div>
-        <div className='border rounded-full'>{avatarDisplay}</div>
+        </div> */}
+        <div className='flex h-full w-full border-4 justify-center rounded-full overflow-hidden'>{avatarDisplay}</div>
 
         {/* Message Display */}
+      </div>
+      
         {messages.map(
           (m) =>
             m.role != 'system' && (
@@ -123,7 +125,6 @@ export default function Chat() {
               </div>
             )
         )}
-      </div>
 
       {/* Input */}
       <form
