@@ -84,10 +84,6 @@ export default function Chat() {
       if (!text || text == '') return
       const generateId = await imageGenerator(text)
       let status = 'pending'
-      const { images, status: initialStatus } = await getGeneratedImage(
-        generateId
-      )
-      status = initialStatus
       while (status != 'finished') {
         await new Promise((resolve) => setTimeout(resolve, 1000))
         const { images, status: currentStatus } = await getGeneratedImage(
@@ -96,8 +92,8 @@ export default function Chat() {
         status = currentStatus
         if (images.length == 0) continue
         setImage(images[0].uri)
+        setMessage(text)
       }
-      setMessage(text)
     })()
     // console.log('isLoading', input)
   }, [text])
@@ -118,25 +114,31 @@ export default function Chat() {
         </div>
       </div>
       <div className='flex w-[34rem] h-screen items-end py-20'>
-        <div className='flex h-72 glass p-6 w-full justify-center rounded-2xl'>
-          <div className={'flex flex-col w-full px-6 py-2 overflow-y-scroll noscrollbar h-full gap-2'}>
-            {messages.map(
-              (m) =>
-                m.role != 'system' && (
-                  <Card
-                    key={m.id}
-                    className={
-                      'flex bg-background/60 h-fit min-h-12 ' +
-                      (m.role === 'user' ? 'self-end' : 'self-start')
-                    }
-                  >
-                    <CardBody className='h-full'>
-                      {m.role === 'user' ? 'User: ' : 'AI: '}
-                      {m.content}
-                    </CardBody>
-                  </Card>
-                )
-            ).reverse()}
+      <div className='flex h-72 glass p-6 w-full justify-center rounded-2xl overflow-hidden'>
+          <div
+            className={
+              'flex flex-col w-full px-6 py-2 overflow-y-scroll noscrollbar h-screen gap-2'
+            }
+          >
+            {messages
+              .map(
+                (m) =>
+                  m.role != 'system' && (
+                    <Card
+                      key={m.id}
+                      className={
+                        'flex bg-background/60 h-fit min-h-16 ' +
+                        (m.role === 'user' ? 'self-end' : 'self-start')
+                      }
+                    >
+                      <CardBody className=''>
+                        {m.role === 'user' ? 'User: ' : 'AI: '}
+                        {m.content}
+                      </CardBody>
+                    </Card>
+                  )
+              )
+              .reverse()}
           </div>
           {/* Input */}
           <form
