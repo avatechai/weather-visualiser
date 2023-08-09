@@ -9,7 +9,8 @@ import {
 } from '@avatechai/avatars/default-loaders'
 import { buildCharacterPersonaPrompt } from '@avatechai/avatars'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { getGeneratedImage, imageGenerator } from './imageGenerator'
 
 const elevenLabs = new ElevenLabsVoiceService(
   process.env.NEXT_PUBLIC_ELEVEN_LABS_API_KEY!,
@@ -27,7 +28,9 @@ export default function Chat() {
     setMessages,
   } = useChat()
 
-  console.log('messages', messages)
+  // console.log('messages', messages)
+  const [image, setImage] = useState('')
+  const [message, setMessage] = useState('')
 
   const [text, currentEmotion] = getAIReplyWithEmotion(messages, isLoading)
 
@@ -38,7 +41,7 @@ export default function Chat() {
     audioStatus,
   } = useAvatar({
     // Avatar State
-    text: text,
+    text: message,
     currentEmotion: currentEmotion,
     avatarId: '89479c95-4ec5-42f7-ac0f-03f8340e8bda',
 
@@ -75,18 +78,40 @@ export default function Chat() {
     ])
   }, [availableEmotions])
 
-  
+  useEffect(() => {
+    ;(async () => {
+      if (!text || text == '') return
+      const generateId = await imageGenerator(text)
+      let status = 'pending'
+      const { images, status: initialStatus } = await getGeneratedImage(
+        generateId
+      )
+      status = initialStatus
+
+      while (status != 'finished') {
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        const { images, status: currentStatus } = await getGeneratedImage(
+          generateId
+        )
+        status = currentStatus
+        if (images.length == 0) continue
+        setImage(images[0].uri)
+      }
+      setMessage(text)
+    })()
+    // console.log('isLoading', input)
+  }, [text])
 
   return (
     <>
-      <div className='w-full md:max-w-md py-24 flex flex-col stretch '>
+      <img src={image} alt='' className='absolute w-screen h-screen'></img>
+      <div className='w-full md:max-w-md py-24 flex flex-col stretch relative'>
         {/* Avatar Display */}
         <div>
-          Audio Status:{' '}
+          Audio Status:
           <span className='bg-gray-200 rounded-lg px-2'>{audioStatus}</span>
         </div>
-
-        {avatarDisplay}
+        <div className='border rounded-full'>{avatarDisplay}</div>
 
         {/* Message Display */}
         {messages.map(

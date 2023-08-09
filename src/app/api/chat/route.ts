@@ -1,6 +1,10 @@
 import { Configuration, OpenAIApi } from 'openai-edge'
 import { OpenAIStream, StreamingTextResponse } from 'ai'
 import { ChatCompletionFunctions } from 'openai-edge/types/api'
+import {
+  getGeneratedImage,
+  imageGenerator,
+} from '../../../components/imageGenerator'
 
 const functions: ChatCompletionFunctions[] = [
   {
@@ -18,6 +22,11 @@ const functions: ChatCompletionFunctions[] = [
           enum: ['celsius', 'fahrenheit'],
           description:
             'The temperature unit to use. Infer this from the users location.',
+        },
+        description: {
+          type: 'string',
+          description:
+            'In the current weather, no cloud in the sky. e.g. In the full day weather, there will be partly cloudy conditions in the morning, with clearing in the afternoon.',
         },
       },
       required: ['location', 'format'],
@@ -52,6 +61,8 @@ export async function POST(req: Request) {
       { name, arguments: args }: { name: string; arguments: any },
       createFunctionCallMessages: (arg0: {
         temperature: number
+        dailyWeather: string
+        currentWeather: string
         unit: string
       }) => any
     ) => {
@@ -65,22 +76,48 @@ export async function POST(req: Request) {
           `https://api.openweathermap.org/data/3.0/onecall?lat=${currentLocation[0].lat}&lon=${currentLocation[0].lon}&exclude=minutely,hourly&appid=6b7eb6ca3be2c0c70d09318e47fb098e&units=metric`
         ).then((res) => res.json())
 
-        console.log(currentWeather.current.temp, currentLocation[0].lat)
+        // const generateId = await imageGenerator(
+        //   args.location,
+        //   currentWeather.daily[0].summary,
+        //   currentWeather.current.weather[0].description
+        // )
+
+        // let status = 'pending'
+        // let image = ''
+        // while (status != 'finished') {
+        //   await new Promise((resolve) => setTimeout(resolve, 1000))
+        //   const { images, status: currentStatus } = await getGeneratedImage(
+        //     generateId
+        //   )
+        //   status = currentStatus
+        //   if (images.length == 0) continue
+        //   image = images[0].uri
+        // }
+
+        // console.log(image, status)
+
+        // console.log(currentWeather.daily[0].summary, currentLocation[0].lat)
 
         // Call a weather API here
         const weatherData = {
           temperature: currentWeather.current.temp,
+          dailyWeather: currentWeather.daily[0].summary,
+          currentWeather: currentWeather.current.weather[0].description,
           unit: args.format === 'celsius' ? 'C' : 'F',
         }
 
+        // const imageData = {
+        //   image: image,
+        // }
+
         // `createFunctionCallMessages` constructs the relevant "assistant" and "function" messages for you
         const newMessages = createFunctionCallMessages(weatherData)
+
         return openai.createChatCompletion({
           messages: [...messages, ...newMessages],
           stream: true,
           model: 'gpt-3.5-turbo-0613',
           // see "Recursive Function Calls" below
-          functions,
         })
       }
     },
