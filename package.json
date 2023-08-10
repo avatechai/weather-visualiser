@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@avatechai/avatars": "0.4.19",
+    "@avatechai/avatars": "0.4.21-next.16",
     "@leap-ai/sdk": "^0.0.130",
     "@nextui-org/button": "^2.0.5",
     "@nextui-org/react": "^2.0.8",

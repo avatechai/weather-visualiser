@@ -1,21 +1,15 @@
-export async function imageGenerator(
-  place: string,
-  dailyWeather?: string,
-  currentWeather?: string
-) {
-  var myHeaders = new Headers()
-  myHeaders.append(
-    'authorization',
-    'Bearer 5f1784ba-438c-42d1-b8cc-152632845c27'
-  )
-  myHeaders.append('accept', 'application/json')
-  myHeaders.append('content-type', 'application/json')
+const leapKey = process.env.NEXT_PUBLIC_LEAP_API_KEY!
+var myHeaders = new Headers()
+myHeaders.append('authorization', 'Bearer ' + leapKey)
+myHeaders.append('accept', 'application/json')
+myHeaders.append('content-type', 'application/json')
 
+export async function postGenerateImage(place: string) {
   var raw = JSON.stringify({
-    prompt: `A photo of ${place} weather, the day weather like ${dailyWeather}, the current weather like ${currentWeather}`,
+    prompt: `8k portrait of photo of ${place} weather`,
     negativePrompt:
-      'blurry, lowres, ugly, boring, poor lighting, dull, unclear, duplicate, error, low quality, out of frame, watermark, signature, double faces, two people, multiple people',
-    steps: 50,
+      'blurry, lowres, ugly, boring, poor lighting, dull, unclear, duplicate, error, low quality, out of frame, watermark, signature, double faces, two people, multiple people, (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck',
+    steps: 60,
     width: 1024,
     height: 576,
     numberOfImages: 1,
@@ -32,32 +26,21 @@ export async function imageGenerator(
   }
 
   const generate = await fetch(
-    'https://api.tryleap.ai/api/v1/images/models/7575ea52-3d4f-400f-9ded-09f7b1b1a5b8/inferences',
+    'https://api.tryleap.ai/api/v1/images/models/26a1a203-3a46-42cb-8cfa-f4de075907d8/inferences',
     requestOptions
   ).then((response) => response.json())
-
-  console.log(generate);
 
   return generate.id
 }
 
 export async function getGeneratedImage(id: string) {
-  var myHeaders = new Headers()
-  myHeaders.append(
-    'authorization',
-    'Bearer 5f1784ba-438c-42d1-b8cc-152632845c27'
-  )
-  myHeaders.append('accept', 'application/json')
-  myHeaders.append('content-type', 'application/json')
-
-
   var requestOptions = {
     method: 'GET',
     headers: myHeaders,
   }
 
   const images = await fetch(
-    'https://api.tryleap.ai/api/v1/images/models/7575ea52-3d4f-400f-9ded-09f7b1b1a5b8/inferences/' +
+    'https://api.tryleap.ai/api/v1/images/models/26a1a203-3a46-42cb-8cfa-f4de075907d8/inferences/' +
       id,
     requestOptions
   ).then((response) => response.json())

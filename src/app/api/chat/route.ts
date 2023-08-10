@@ -1,10 +1,6 @@
 import { Configuration, OpenAIApi } from 'openai-edge'
 import { OpenAIStream, StreamingTextResponse } from 'ai'
 import { ChatCompletionFunctions } from 'openai-edge/types/api'
-import {
-  getGeneratedImage,
-  imageGenerator,
-} from '../../../components/imageGenerator'
 
 const functions: ChatCompletionFunctions[] = [
   {
@@ -15,7 +11,7 @@ const functions: ChatCompletionFunctions[] = [
       properties: {
         location: {
           type: 'string',
-          description: 'The city and state, e.g. San Francisco, CA',
+          description: 'The city and state, e.g. San Francisco',
         },
         format: {
           type: 'string',
@@ -43,6 +39,8 @@ const openai = new OpenAIApi(config)
 // IMPORTANT! Set the runtime to edge
 export const runtime = 'edge'
 
+const weatherKey = process.env.OPENWEATHER_API_KEY!
+
 export async function POST(req: Request) {
   // Extract the `messages` from the body of the request
   const { messages } = await req.json()
@@ -54,6 +52,7 @@ export async function POST(req: Request) {
     messages,
     functions,
   })
+
   // Convert the response into a friendly text-stream
   const stream = OpenAIStream(response, {
     // @ts-ignore
@@ -69,30 +68,17 @@ export async function POST(req: Request) {
       // if you skip the function call and return nothing, the `function_call`
       // message will be sent to the client for it to handle
       if (name === 'get_current_weather') {
+
+        console.log(args.location, weatherKey);
+        
         const currentLocation = await fetch(
-          `http://api.openweathermap.org/geo/1.0/direct?q=${args.location}&limit=1&appid=6b7eb6ca3be2c0c70d09318e47fb098e`
+          `http://api.openweathermap.org/geo/1.0/direct?q=${args.location}&limit=1&appid=${weatherKey}`
         ).then((res) => res.json())
+        console.log(currentLocation)
+
         const currentWeather = await fetch(
-          `https://api.openweathermap.org/data/3.0/onecall?lat=${currentLocation[0].lat}&lon=${currentLocation[0].lon}&exclude=minutely,hourly&appid=6b7eb6ca3be2c0c70d09318e47fb098e&units=metric`
+          `https://api.openweathermap.org/data/3.0/onecall?lat=${currentLocation[0].lat}&lon=${currentLocation[0].lon}&exclude=minutely,hourly&appid=${weatherKey}&units=metric`
         ).then((res) => res.json())
-
-        // const generateId = await imageGenerator(
-        //   args.location,
-        //   currentWeather.daily[0].summary,
-        //   currentWeather.current.weather[0].description
-        // )
-
-        // let status = 'pending'
-        // let image = ''
-        // while (status != 'finished') {
-        //   await new Promise((resolve) => setTimeout(resolve, 1000))
-        //   const { images, status: currentStatus } = await getGeneratedImage(
-        //     generateId
-        //   )
-        //   status = currentStatus
-        //   if (images.length == 0) continue
-        //   image = images[0].uri
-        // }
 
         // Call a weather API here
         const weatherData = {
