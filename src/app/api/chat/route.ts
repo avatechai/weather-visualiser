@@ -69,12 +69,9 @@ export async function POST(req: Request) {
       // message will be sent to the client for it to handle
       if (name === 'get_current_weather') {
 
-        console.log(args.location, weatherKey);
-        
         const currentLocation = await fetch(
           `http://api.openweathermap.org/geo/1.0/direct?q=${args.location}&limit=1&appid=${weatherKey}`
         ).then((res) => res.json())
-        console.log(currentLocation)
 
         const currentWeather = await fetch(
           `https://api.openweathermap.org/data/3.0/onecall?lat=${currentLocation[0].lat}&lon=${currentLocation[0].lon}&exclude=minutely,hourly&appid=${weatherKey}&units=metric`
