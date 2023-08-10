@@ -10,7 +10,6 @@ import {
 import { buildCharacterPersonaPrompt } from '@avatechai/avatars'
 
 import { useEffect, useState } from 'react'
-import { getGeneratedImage, postGenerateImage } from './imageGenerator'
 import { Button, Card, CardBody } from '@nextui-org/react'
 
 const elevenLabs = new ElevenLabsVoiceService(
@@ -92,13 +91,23 @@ export default function Chat() {
   useEffect(() => {
     ;(async () => {
       if (!text || text == '') return
-      const generateId = await postGenerateImage(text)
+      const generateId = await fetch('api/image/setImage', {
+        method: 'POST',
+        body: JSON.stringify({ place: text }),
+      }).then((res) => res.json())
+
+      // const generateId = await postGenerateImage(text)
       let status = 'pending'
       while (status != 'finished') {
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        const { images, status: currentStatus } = await getGeneratedImage(
-          generateId
-        )
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        // const { images, status: currentStatus } = await getGeneratedImage(
+        //   generateId
+        // )
+        const { images, status: currentStatus } = await fetch('api/image/getImage', {
+          method: 'POST',
+          body: JSON.stringify({ id: generateId.id }),
+        }).then((res) => res.json())
+
         status = currentStatus
         if (images.length == 0) continue
         setImage(images[0].uri)
