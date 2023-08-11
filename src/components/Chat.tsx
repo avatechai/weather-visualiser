@@ -96,13 +96,9 @@ export default function Chat() {
         body: JSON.stringify({ place: text }),
       }).then((res) => res.json())
 
-      // const generateId = await postGenerateImage(text)
       let status = 'pending'
       while (status != 'finished') {
         await new Promise((resolve) => setTimeout(resolve, 500))
-        // const { images, status: currentStatus } = await getGeneratedImage(
-        //   generateId
-        // )
         const { images, status: currentStatus } = await fetch('api/image/getImage', {
           method: 'POST',
           body: JSON.stringify({ id: generateId.id }),
